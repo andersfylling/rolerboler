@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"net/http"
 	"os"
 	"strings"
 
@@ -19,7 +21,25 @@ var DiscordToken string
 var DiscordPrefix string
 var DiscordClientID string
 
+func helloWorld(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("hello world"))
+}
+
+func webServerForHeroku() {
+	port := os.Getenv("PORT")
+	if port == "" {
+		return // not on heroku i assume....
+	}
+
+	http.HandleFunc("/", helloWorld)
+	err := http.ListenAndServe(":"+port, nil) // set listen port
+	if err != nil {
+		log.Fatal("ListenAndServe: ", err)
+	}
+}
+
 func main() {
+	go webServerForHeroku()
 	// Initialize command-line application
 	app := &cli.App{
 		Name:  "rolerboler",
